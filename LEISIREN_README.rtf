@@ -1,0 +1,103 @@
+{\rtf1\ansi\ansicpg1252\cocoartf2513
+\cocoatextscaling0\cocoaplatform0{\fonttbl\f0\fswiss\fcharset0 Helvetica-Bold;\f1\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;\red17\green85\blue204;\red34\green34\blue34;}
+{\*\expandedcolortbl;;\csgenericrgb\c6667\c33333\c80000;\csgenericrgb\c13333\c13333\c13333;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww13420\viewh10320\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\b\fs24 \cf0 ********************************************************************************************************\
+LEI and SIREN README\
+********************************************************************************************************
+\f1\b0 \
+\
+The objective is to create a single file reporting:\
+\
+	1) LEI\
+	2) SIREN\
+	3) Legal name\
+\
+I include three other variables:\
+\
+	4) Other name\
+	5) Fund manager business registration ID (this is the SIREN of fund managers)\
+	6) Associated entity LEI (presumably the parent\'92s LEI)\
+\
+The datasource is: {\field{\*\fldinst{HYPERLINK "https://lei-france.insee.fr/telechargement%22%20%5Ct%20%22_blank"}}{\fldrslt \cf2 \ul \ulc2 https://lei-france.insee.fr/telechargement\
+}}\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf3 \
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 The files are provided in XML, and I worked with two R scripts that I describe below. \
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\b \cf0 ********************************************************************************************************\
+R SCRIPT 1: Web scrape\
+********************************************************************************************************
+\f1\b0 \
+\
+The code reads the datasource website and finds all the files called leifrancefullfileYYYYMMdd\'94\
+\
+For each year, I download the end-of-month file (or latest available, for example for 2021 it was 18 June 2021).\
+\
+Challenge: filenames are irregular.. sometimes they end with different letters. For example we have two files named leifrancefullfile20200430-cf1.xml and leifrancefullfile20200430-cf2.xml.\
+\
+Some years have \'93-cf1\'94 others do not, some have both. I keep both files and will filter for unique values later on.\
+\
+There are 69 files in total. (12 files per year for 6 years: 2016 - 2020 + 6 files for 2021)\
+\
+
+\f0\b ********************************************************************************************************\
+R SCRIPT 2: XML cleaning\
+********************************************************************************************************
+\f1\b0 \
+\
+The code parses the XML tree (where all the information are stored).\
+\
+Then extracts the six variables previously listed. \
+\
+I add two more columns: \'93year\'94 and \'93month\'94 to track the source of the data. \
+	a file extracted from leifrancefullfile20200430-cf1.xml will have \'93year\'94 = 2020 and month = \'9304\'94\
+\
+All the files are merged into a single dataset of ~ 3.8 million observations.\
+\
+From the single large dataset I build three datasets:\
+\
+	1) Dataset 1: \
+		variables: lei, legal name, other name, siren, name, nah, fundmgrid, assoclei, year, month\
+		frequency: monthly\
+		n\'b0 observations: 2.9 millions\
+\
+	2) Dataset 2:\
+		variables: lei, siren, year, month\
+		frequency: monthly\
+		n\'b0 observations: 2.9 millions\
+\
+	2) Dataset 3:\
+		variables: lei, legal name, other name, siren, name, nah, fundmgrid, assoclei, year, month\
+		frequency: yearly\
+		n\'b0 observations: 294 thousands\
+\
+For the monthly datasets, I keep only unique LEI and SIREN for each year-month.\
+\
+For the yearly datasets, I keep the latest month available for each observations each year, which generally is December. \
+	It can happen that a company is last observed not in December. \
+	For example: if a certain company stops being recorded after June 2018, I keep the June 2018 observation.\
+\
+I keep unique combination of LEI and SIREN for each year.\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \ul \ulc0 N\'b0 observations per year\ulnone \
+2016  	2017  	2018  	2019  	2020 \
+27934 	42347 	65871 	74239 	83470\
+\
+\ul N\'b0 observations per month\ulnone \
+Jan      Feb      March      April      May      June      July      Aug      Sep     Oct     Nov     Dec \
+    45    74        65     	      55         181       43          39        43        101      101    146      292968\
+\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf3 	\
+\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+}
