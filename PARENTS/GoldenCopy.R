@@ -157,12 +157,12 @@ full_dta_wide <- dcast(full_dta, lei + relationship_start_date + relationship_en
                 distinct(lei, relationship_start_date, relationship_end_date, .keep_all = TRUE) ## discard duplicates
 
 ## save file as csv
-write.csv(full_dta_wide, 
-          file = "/Users/oliverashtari/Desktop/Liliana/Concatenated/Output/parents.csv", 
-          stdout(), row.names=FALSE)
+#write.csv(full_dta_wide, 
+#         file = "/Users/oliverashtari/Desktop/Liliana/PARENTS/Output/parents.csv", 
+#          stdout(), row.names=FALSE)
 
 ## save as zip
 write.csv(full_dta_wide, 
-          file = gzfile("/Users/oliverashtari/Desktop/Liliana/Concatenated/Output/parents.csv.gz",), 
+          file = gzfile("/Users/oliverashtari/Desktop/Liliana/PARENTS/Output/parents.csv.gz",), 
           row.names=FALSE)
 
